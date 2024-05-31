@@ -1,0 +1,9 @@
+/* main {
+  max-width: 1200px;
+} */
+
+.my-gradient {
+  background: rgb(255, 255, 255);
+  background: linear-gradient(90deg, #fff 19%, #c4f4ff 100%);
+  box-shadow: -2px 0px 15px 4px rgba(110, 80, 110, 0.1);
+}

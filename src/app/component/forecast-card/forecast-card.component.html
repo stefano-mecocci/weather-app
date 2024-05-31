@@ -1,0 +1,42 @@
+@if (loading) {
+<div class="loader"></div>
+}
+
+<h3 class="font-bold m-0 text-md lg:text-xl uppercase">
+  {{ weather.day | date : "EEE" }}
+</h3>
+
+<img
+  [src]="'/assets/' + weather.main + '.png'"
+  alt="Sun and cloud"
+  class="max-w-16 lg:max-w-20 xl:max-w-24"
+/>
+
+<h3 class="font-bold mt-4 mb-0 text-xl lg:text-3xl">
+  {{ weather.temp_min }}˚/ {{ weather.temp_max }}˚
+</h3>
+<span class="block relative text-sm" style="top: -5px">{{ weather.main }}</span>
+
+<div
+  class="flex flex-wrap w-full gap-y-3 justify-between md:justify-center lg:justify-between mt-8"
+>
+  <!-- umidità -->
+  <div class="flex items-center justify-center">
+    <span class="material-icons">water_drop</span>
+
+    <div>
+      <span class="block font-bold text-xs">{{ weather.humidity }}%</span>
+      <span class="block text-xs">humidity</span>
+    </div>
+  </div>
+
+  <!-- velocità del vento -->
+  <div class="flex items-center justify-center">
+    <span class="material-icons">air</span>
+
+    <div>
+      <span class="block font-bold text-xs">{{ weather.wind_speed }} km/h</span>
+      <span class="block text-xs">wind</span>
+    </div>
+  </div>
+</div>

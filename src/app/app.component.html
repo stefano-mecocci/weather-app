@@ -1,0 +1,62 @@
+<main
+  class="mt-2 mb-8 grid grid-cols-5 gap-x-3 gap-y-6 p-4 w-[330px] md:w-[700px] lg:w-[1000px] xl:w-[1200px]"
+>
+  <h1 class="text-6xl text-center my-4 col-span-5 font-bold font-[Verdana]">
+    Weather app
+  </h1>
+
+  <!-- search box -->
+  <div class="col-span-5 flex items-center mb-16 mt-8">
+    <input
+      type="text"
+      placeholder="Search your city"
+      (input)="onSearch($event)"
+      (focus)="moveUp($event)"
+      class="w-full block border-b-2 py-3 px-1 bg-transparent text-3xl md:text-6xl focus-visible:outline-0 focus-visible:border-b-cyan-500 relative top-[230px] transition-all"
+    />
+  </div>
+
+  @if (cityDoesntExists$ | async) {
+  <h1
+    class="col-start-2 col-span-3 text-6xl text-center font-bold text-zinc-300"
+  >
+    La città non esiste
+  </h1>
+  }
+
+  <!-- current weather card -->
+  <app-current-card
+    [currentWeather]="(currentWeather$ | async) ?? emptyW"
+    [loading]="(loadingCurrent$ | async)!"
+    [class.hidden]="cityFound$ | async"
+    class="col-span-5 flex justify-between p-6 pt-4 rounded-xl my-gradient relative slide-up"
+  ></app-current-card>
+
+  <!-- forecast weather cards (seleziono il primo di ogni giorno) -->
+  @for (dayWeather of (forecastWeather$ | async); track dayWeather) {
+  <app-forecast-card
+    [weather]="dayWeather"
+    [loading]="(loadingForecast$ | async)!"
+    [class.hidden]="cityFound$ | async"
+    class="bg-white shadow-xl col-span-5 md:col-span-1 p-4 md:px-1 lg:p-4 py-2 rounded-md flex flex-col items-center hover:-translate-y-2 transition-all overflow-hidden slide-up relative"
+  ></app-forecast-card>
+  }
+
+  <!-- chart delle temperature -->
+  <div
+    class="relative col-span-5 max-h-[300px]"
+    [class.hidden]="cityFound$ | async"
+  >
+    <canvas
+      baseChart
+      height="300"
+      type="line"
+      [data]="(graphWeather$ | async)!"
+      [options]="lineChartOptions"
+      [legend]="true"
+    >
+    </canvas>
+  </div>
+</main>
+
+<!-- <router-outlet /> -->

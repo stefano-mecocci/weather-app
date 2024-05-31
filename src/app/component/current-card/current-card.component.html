@@ -1,0 +1,38 @@
+@if (loading) {
+<div class="loader"></div>
+}
+
+<div class="basis-1/4">
+  <h1 class="text-2xl sm:text-5xl lg:text-8xl font-bold">
+    {{ currentWeather.temperature }}˚C
+  </h1>
+  <span class="inline-block sm:ml-1 text-md sm:text-2xl">{{
+    currentWeather.main
+  }}</span>
+
+  <div class="flex mt-12 lg:mt-24 mb-4">
+    <span class="material-icons">water_drop</span>
+
+    <span class="inline-block ml-2">humidity</span>
+    <span class="inline-block ml-1 font-medium"
+      >{{ currentWeather.humidity }}%</span
+    >
+  </div>
+
+  <div class="flex">
+    <span class="material-icons">air</span>
+
+    <span class="inline-block ml-2">wind</span>
+    <span class="inline-block ml-1 font-medium"
+      >{{ currentWeather.wind_speed }} km/h</span
+    >
+  </div>
+</div>
+
+<div class="basis-3/4 flex justify-center items-center">
+  <img
+    [src]="'/assets/' + currentWeather.main + '.png'"
+    alt=""
+    class="max-w-24 sm:max-w-48 lg:max-w-64 w-full"
+  />
+</div>
