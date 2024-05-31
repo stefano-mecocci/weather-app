@@ -26,7 +26,7 @@
 
   <!-- current weather card -->
   <app-current-card
-    [currentWeather]="(currentWeather$ | async) ?? emptyW"
+    [currentWeather]="(currentWeather$ | async) ?? emptyWeather"
     [loading]="(loadingCurrent$ | async)!"
     [class.hidden]="cityFound$ | async"
     class="col-span-5 flex justify-between p-6 pt-4 rounded-xl my-gradient relative slide-up"

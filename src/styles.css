@@ -1,3 +1,5 @@
+@import "ngx-toastr/toastr";
+
 @tailwind base;
 @tailwind utilities;
 
@@ -28,4 +30,8 @@ body {
   100% {
     background-color: #ccc;
   }
+}
+
+.toast-top-center {
+  top: 30px;
 }

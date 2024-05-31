@@ -8,11 +8,12 @@ import {
   EMPTY,
   Observable,
   Subject,
-  catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
+  finalize,
   map,
+  retry,
   share,
   switchMap,
   tap,
@@ -23,6 +24,7 @@ import { LoaderService } from './service/loader.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { cluster } from 'radash';
+import { NotificationService } from './service/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -49,7 +51,7 @@ export class AppComponent {
   cityDoesntExists$ = new BehaviorSubject<boolean>(false);
   cityFound$ = new BehaviorSubject<boolean>(true);
 
-  emptyW: Weather = {
+  emptyWeather: Weather = {
     temperature: 0,
     temp_min: 0,
     temp_max: 0,
@@ -66,7 +68,8 @@ export class AppComponent {
 
   constructor(
     private weatherService: WeatherService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private notificationService: NotificationService
   ) {
     this.loadingCurrent$ = loaderService.getLoader('currentWeather');
     this.loadingForecast$ = loaderService.getLoader('forecastWeather');
@@ -74,24 +77,22 @@ export class AppComponent {
     const cityCoords$ = this.setupCityCoordsObservable();
 
     this.currentWeather$ = cityCoords$.pipe(
-      tap(() => this.loaderService.start('currentWeather')),
-      switchMap((coords) =>
-        this.weatherService.getCurrentWeather(coords?.lat, coords?.lon)
+      switchMap((coords: any) =>
+        this.weatherService.getCurrentWeather(coords.lat, coords.lon)
       ),
       tap(() => this.loaderService.stop('currentWeather'))
     );
 
     const underWeather$ = cityCoords$.pipe(
-      tap(() => this.loaderService.start('forecastWeather')),
-      switchMap((coords) =>
-        this.weatherService.getForecastWeather(coords?.lat, coords?.lon)
+      switchMap((coords: any) =>
+        this.weatherService.getForecastWeather(coords.lat, coords.lon)
       ),
       tap(() => this.loaderService.stop('forecastWeather')),
       share()
     );
 
     this.forecastWeather$ = underWeather$.pipe(
-      map((list) => cluster(list, 8).map((x) => x[0])) // solo il primo di ogni giorno
+      map((list) => cluster(list, 8).map((arr) => arr[0])) // solo il primo di ogni giorno
     );
     this.graphWeather$ = underWeather$.pipe(
       map(this.convertWeatherDataToGraph)
@@ -108,12 +109,21 @@ export class AppComponent {
       distinctUntilChanged(),
       filter((city) => city.trim() != ''),
       switchMap((city) => this.weatherService.getCityCoords(city)),
-      catchError(() => EMPTY),
+      retry({
+        delay: () => {
+          this.notificationService.info('The server is currently unreachable');
+          return this.city$;
+        },
+      }),
       tap((coords) => {
         this.cityFound$.next(coords == null);
         this.cityDoesntExists$.next(coords == null);
       }),
       filter((coords) => coords != null),
+      tap(() => {
+        this.loaderService.start('forecastWeather');
+        this.loaderService.start('currentWeather');
+      }),
       share()
     );
   }
@@ -124,7 +134,7 @@ export class AppComponent {
       datasets: [
         {
           data: weathers.map((x) => x.temperature),
-          label: 'Temperatures',
+          label: 'Temperature',
           fill: true,
           tension: 0.5,
           borderColor: '#97e5f7',
